@@ -1,0 +1,58 @@
+/data/
+HELP.md
+# === Java / Maven / Gradle ===
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# === Build directories ===
+/target/
+/build/
+
+# === Maven ===
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# === Gradle ===
+.gradle/
+/build/
+/!gradle/wrapper/gradle-wrapper.jar
+
+# === Spring Boot dev tools ===
+.spring-boot-devtools.properties
+*.h2.db
+
+# === Eclipse / STS ===
+.project
+.classpath
+.settings/
+.apt_generated/
+.factorypath
+.metadata/
+bin/
+tmp/
+*.tmp
+
+# === IntelliJ ===
+.idea/
+*.iml
+*.iws
+out/
+
+# === Systemowe ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === Env / secret configs ===
+.env
+application-dev.properties
+application-prod.properties
