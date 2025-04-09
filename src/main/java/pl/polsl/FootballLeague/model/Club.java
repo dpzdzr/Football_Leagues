@@ -2,6 +2,8 @@ package pl.polsl.FootballLeague.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +24,7 @@ public class Club {
 	private String name;
 	private String city;
 	private Integer foundationYear;
-	private Integer currentPosition;
+	private Integer points;
 
 	@ManyToOne
 	private League league;
@@ -31,11 +33,22 @@ public class Club {
 	private Stadium stadium;
 
 	@OneToMany(mappedBy = "club")
+	@JsonIgnore
 	private List<Player> players;
 
 	@OneToMany(mappedBy = "homeClub")
+	@JsonIgnore
 	private List<Match> homeMatches;
 
 	@OneToMany(mappedBy = "awayClub")
+	@JsonIgnore
 	private List<Match> awayMatches;
+
+	public void addWin() {
+		points += 3;
+	}
+
+	public void addDraw() {
+		points += 1;
+	}
 }

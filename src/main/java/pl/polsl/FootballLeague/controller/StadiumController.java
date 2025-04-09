@@ -8,23 +8,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import pl.polsl.FootballLeague.model.Player;
-import pl.polsl.FootballLeague.repository.PlayerRepository;
+import pl.polsl.FootballLeague.model.Stadium;
+import pl.polsl.FootballLeague.repository.StadiumRepository;
 
 @Controller
-@RequestMapping("/player")
-public class PlayerController {
+@RequestMapping("/stadium")
+public class StadiumController {
 	@Autowired
-	PlayerRepository playerRepo;
-
-	@PostMapping
-	public @ResponseBody void addPlayer(@RequestBody Player player) {
-		player = playerRepo.save(player);
-	}
+	private StadiumRepository stadiumRepo;
 
 	@GetMapping
-	public @ResponseBody Iterable<Player> getPlayers() {
-		return playerRepo.findAll();
+	public @ResponseBody Iterable<Stadium> getStadiums() {
+		return stadiumRepo.findAll();
 	}
 
+	@PostMapping
+	public @ResponseBody void addStadium(@RequestBody Stadium stadium) {
+		stadiumRepo.save(stadium);
+	}
 }

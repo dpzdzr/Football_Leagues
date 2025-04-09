@@ -1,5 +1,7 @@
 package pl.polsl.FootballLeague.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,5 +22,6 @@ public class Stadium {
 	private String address;
 
 	@OneToOne(mappedBy = "stadium")
+	@JsonIgnore
 	private Club club;
 }

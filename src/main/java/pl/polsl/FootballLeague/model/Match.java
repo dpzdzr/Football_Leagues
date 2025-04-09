@@ -3,6 +3,8 @@ package pl.polsl.FootballLeague.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +24,9 @@ public class Match {
 
 	private LocalDateTime dateTime;
 
+	private Integer homeScore;
+	private Integer awayScore;
+	
 	@ManyToOne(optional = false)
 	private Club homeClub;
 
@@ -29,5 +34,6 @@ public class Match {
 	private Club awayClub;
 
 	@OneToMany(mappedBy = "match")
+	@JsonIgnore
 	private List<Goal> goals;
 }
