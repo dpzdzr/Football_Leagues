@@ -3,6 +3,8 @@ package pl.polsl.FootballLeague.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,8 +32,10 @@ public class Player {
 	private Position position;
 
 	@OneToMany(mappedBy = "scorer")
+	@JsonIgnore
 	private List<Goal> goals;
 
 	@OneToMany(mappedBy = "assistant")
+	@JsonIgnore
 	private List<Goal> assists;
 }
