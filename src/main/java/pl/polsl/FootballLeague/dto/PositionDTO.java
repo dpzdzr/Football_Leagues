@@ -20,5 +20,6 @@ public class PositionDTO extends RepresentationModel<PositionDTO> {
 		this.name = position.getName();
 
 		this.add(linkTo(methodOn(PositionController.class).getPlayersByPosition(id)).withRel("players"));
+		this.add(linkTo(methodOn(PositionController.class).updatePosition(id, null)).withRel("update").withType("PUT"));
 	}
 }
