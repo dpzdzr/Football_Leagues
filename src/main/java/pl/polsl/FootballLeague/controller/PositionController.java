@@ -25,7 +25,7 @@ import pl.polsl.FootballLeague.repository.PositionRepository;
 @RequestMapping("/position")
 public class PositionController {
 	@Autowired
-	PositionRepository positionRepo;
+	private PositionRepository positionRepo;
 
 	@PostMapping
 	public void addPosition(@RequestBody Position position) {

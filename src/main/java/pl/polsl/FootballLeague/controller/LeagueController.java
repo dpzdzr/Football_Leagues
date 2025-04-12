@@ -1,43 +1,57 @@
 package pl.polsl.FootballLeague.controller;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import pl.polsl.FootballLeague.model.Club;
+import pl.polsl.FootballLeague.dto.ClubDTO;
+import pl.polsl.FootballLeague.dto.LeagueDTO;
 import pl.polsl.FootballLeague.model.League;
-import pl.polsl.FootballLeague.repository.ClubRepository;
 import pl.polsl.FootballLeague.repository.LeagueRepository;
 
-@Controller
+@RestController
 @RequestMapping("/league")
 public class LeagueController {
 	@Autowired
 	LeagueRepository leagueRepo;
-	@Autowired
-	ClubRepository clubRepo;
 
 	@GetMapping
-	public @ResponseBody Iterable<League> getLeagues() {
-		return leagueRepo.findAll();
+	public CollectionModel<LeagueDTO> getLeagues() {
+		List<LeagueDTO> leaguesDTO = StreamSupport.stream(leagueRepo.findAll().spliterator(), false).map(LeagueDTO::new)
+				.toList();
+		return CollectionModel.of(leaguesDTO);
 	}
 
 	@GetMapping("/{leagueId}/table")
-	public @ResponseBody List<Club> getLeagueTable(@PathVariable Integer leagueId) {
-		League league = leagueRepo.findById(leagueId)
-				.orElseThrow(()-> new RuntimeException("League not found"));
-		return clubRepo.findByLeagueOrderByPointsDesc(league);
+	public CollectionModel<ClubDTO> getLeagueTable(@PathVariable Integer leagueId) {
+		League league = leagueRepo.findById(leagueId).orElseThrow(() -> new RuntimeException("League not found"));
+		List<ClubDTO> clubsDTO = league.getClubs().stream()
+				.sorted(Comparator.comparingInt(c -> -Optional.ofNullable(c.getPoints()).orElse(0))).map(ClubDTO::new)
+				.toList();
+
+		return CollectionModel.of(clubsDTO);
+	}
+
+	@GetMapping("/{id}/clubs")
+	public CollectionModel<ClubDTO> getClubsForLeague(@PathVariable Integer id) {
+		League league = leagueRepo.findById(id).orElseThrow(() -> new RuntimeException("League not found"));
+		List<ClubDTO> clubsDTO = league.getClubs().stream().map(ClubDTO::new).toList();
+
+		return CollectionModel.of(clubsDTO);
 	}
 
 	@PostMapping
-	public @ResponseBody void addLeague(@RequestBody League league) {
+	public void addLeague(@RequestBody League league) {
 		leagueRepo.save(league);
 	}
 }
