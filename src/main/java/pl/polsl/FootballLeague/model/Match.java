@@ -21,9 +21,7 @@ public class Match {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
 	private LocalDateTime dateTime;
-
 	private Integer homeScore;
 	private Integer awayScore;
 	

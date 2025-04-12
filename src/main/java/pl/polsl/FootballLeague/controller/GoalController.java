@@ -2,6 +2,7 @@ package pl.polsl.FootballLeague.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import pl.polsl.FootballLeague.dto.GoalDTO;
+import pl.polsl.FootballLeague.dto.MatchDTO;
 import pl.polsl.FootballLeague.dto.PlayerDTO;
 import pl.polsl.FootballLeague.model.Goal;
 import pl.polsl.FootballLeague.repository.GoalRepository;
@@ -23,12 +25,7 @@ import pl.polsl.FootballLeague.repository.GoalRepository;
 @RequestMapping("/goal")
 public class GoalController {
 	@Autowired
-	GoalRepository goalRepo;
-
-//	@GetMapping
-//	public Iterable<Goal> getGoals() {
-//		return goalRepo.findAll();
-//	}
+	private GoalRepository goalRepo;
 
 	@GetMapping
 	public CollectionModel<GoalDTO> getGoals() {
@@ -38,18 +35,36 @@ public class GoalController {
 		return CollectionModel.of(goalsDTO);
 	}
 
-	@GetMapping("{id}/scorer")
-	public PlayerDTO getScorer(@PathVariable Integer id)
-	{
-		return goalRepo.findById(id).map(Goal::getScorer).map(PlayerDTO::new)
+	@GetMapping("/{id}")
+	public GoalDTO getGoal(@PathVariable Integer id) {
+		return goalRepo.findById(id).map(GoalDTO::new)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
 	}
-	
-	@GetMapping("{id}/assistant")
-	public PlayerDTO getAssistant(@PathVariable Integer id)
-	{
-		return goalRepo.findById(id).map(Goal::getAssistant).map(PlayerDTO::new)
+
+	@GetMapping("/{id}/match")
+	public MatchDTO getMatchForGoal(@PathVariable Integer id) {
+		Goal goal = goalRepo.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
+
+		return Optional.ofNullable(goal.getMatch()).map(MatchDTO::new)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Match not assigned"));
+	}
+
+	@GetMapping("/{id}/scorer")
+	public PlayerDTO getScorerForGoal(@PathVariable Integer id) {
+		Goal goal = goalRepo.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
+		return Optional.ofNullable(goal.getScorer()).map(PlayerDTO::new)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scorer not assigned"));
+	}
+
+	@GetMapping("/{id}/assistant")
+	public PlayerDTO getAssistantForGoal(@PathVariable Integer id) {
+		Goal goal = goalRepo.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
+
+		return Optional.ofNullable(goal.getAssistant()).map(PlayerDTO::new)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assistant not assigned"));
 	}
 
 	@PostMapping

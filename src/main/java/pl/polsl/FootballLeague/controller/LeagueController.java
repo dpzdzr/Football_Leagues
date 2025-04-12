@@ -32,9 +32,14 @@ public class LeagueController {
 		return CollectionModel.of(leaguesDTO);
 	}
 
-	@GetMapping("/{leagueId}/table")
-	public CollectionModel<ClubDTO> getLeagueTable(@PathVariable Integer leagueId) {
-		League league = leagueRepo.findById(leagueId).orElseThrow(() -> new RuntimeException("League not found"));
+	@GetMapping("/{id}")
+	public LeagueDTO getLeague(@PathVariable Integer id) {
+		return leagueRepo.findById(id).map(LeagueDTO::new).orElseThrow(() -> new RuntimeException("League not found"));
+	}
+
+	@GetMapping("/{id}/table")
+	public CollectionModel<ClubDTO> getLeagueTable(@PathVariable Integer id) {
+		League league = leagueRepo.findById(id).orElseThrow(() -> new RuntimeException("League not found"));
 		List<ClubDTO> clubsDTO = league.getClubs().stream()
 				.sorted(Comparator.comparingInt(c -> -Optional.ofNullable(c.getPoints()).orElse(0))).map(ClubDTO::new)
 				.toList();

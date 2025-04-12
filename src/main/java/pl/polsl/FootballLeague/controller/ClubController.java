@@ -2,7 +2,9 @@ package pl.polsl.FootballLeague.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -18,7 +20,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import pl.polsl.FootballLeague.dto.ClubDTO;
 import pl.polsl.FootballLeague.dto.LeagueDTO;
+import pl.polsl.FootballLeague.dto.MatchDTO;
 import pl.polsl.FootballLeague.dto.PlayerDTO;
+import pl.polsl.FootballLeague.dto.StadiumDTO;
 import pl.polsl.FootballLeague.model.Club;
 import pl.polsl.FootballLeague.model.League;
 import pl.polsl.FootballLeague.model.Player;
@@ -67,13 +71,39 @@ public class ClubController {
 		return (new LeagueDTO(club.getLeague()));
 	}
 
+	@GetMapping("/{id}/home_matches")
+	public CollectionModel<MatchDTO> getHomeMatchesForClub(@PathVariable Integer id) {
+		Club club = findClubOrThrowException(id);
+		List<MatchDTO> matchDTOs = StreamSupport.stream(club.getHomeMatches().spliterator(), false).map(MatchDTO::new)
+				.toList();
+
+		return CollectionModel.of(matchDTOs);
+	}
+
+	@GetMapping("/{id}/away_matches")
+	public CollectionModel<MatchDTO> getAwayMatchesForClub(@PathVariable Integer id) {
+		Club club = findClubOrThrowException(id);
+		List<MatchDTO> matchDTOs = StreamSupport.stream(club.getAwayMatches().spliterator(), false).map(MatchDTO::new)
+				.toList();
+
+		return CollectionModel.of(matchDTOs);
+	}
+
+	@GetMapping("/{id}/stadium")
+	public StadiumDTO getStadiumForClub(@PathVariable Integer id) {
+		Club club = findClubOrThrowException(id);
+
+		return Optional.ofNullable(club.getStadium()).map(StadiumDTO::new)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Stadium not assigned"));
+	}
+
 	@PutMapping("/{id}")
 	public ClubDTO updateClub(@PathVariable Integer id, @RequestBody Club updatedClub) {
 		Club existingClub = findClubOrThrowException(id);
 		updateNotNullFields(updatedClub, existingClub);
 		clubRepo.save(existingClub);
 
-		return (new ClubDTO(existingClub));
+		return new ClubDTO(existingClub);
 	}
 
 	@PostMapping

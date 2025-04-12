@@ -27,7 +27,7 @@ import pl.polsl.FootballLeague.repository.PlayerRepository;
 @RequestMapping("/player")
 public class PlayerController {
 	@Autowired
-	PlayerRepository playerRepo;
+	private PlayerRepository playerRepo;
 
 	@PostMapping
 	public void addPlayer(@RequestBody Player player) {
@@ -42,11 +42,16 @@ public class PlayerController {
 		return CollectionModel.of(playersDTO);
 	}
 
+	@GetMapping("/{id}")
+	public PlayerDTO getPlayer(@PathVariable Integer id) {
+		return playerRepo.findById(id).map(PlayerDTO::new)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
+	}
+
 	@GetMapping("/{id}/club")
 	public Club getClubForPlayer(@PathVariable Integer id) {
 		Player player = playerRepo.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
-
 		Club club = player.getClub();
 		if (club == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Club not assigned");
@@ -58,7 +63,6 @@ public class PlayerController {
 	public PositionDTO getPositionForPlayer(@PathVariable Integer id) {
 		Player player = playerRepo.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
-
 		Position position = player.getPosition();
 		if (position == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not assigned");
@@ -75,6 +79,13 @@ public class PlayerController {
 			goalsDTO.add(new GoalDTO(goal));
 
 		return CollectionModel.of(goalsDTO);
+	}
+
+	@GetMapping("/{id}/assists")
+	public CollectionModel<GoalDTO> getAssistsForPlayer(@PathVariable Integer id) {
+		Player player = playerRepo.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
+		return CollectionModel.of(player.getAssists().stream().map(GoalDTO::new).toList());
 	}
 
 }

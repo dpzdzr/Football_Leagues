@@ -28,6 +28,9 @@ public class ClubDTO extends RepresentationModel<ClubDTO> {
 		
 		this.add(linkTo(methodOn(ClubController.class).getClub(id)).withSelfRel());
 		this.add(linkTo(methodOn(ClubController.class).getLeagueForClub(id)).withRel("league"));
+		this.add(linkTo(methodOn(ClubController.class).getStadiumForClub(id)).withRel("stadium"));
 		this.add(linkTo(methodOn(ClubController.class).getPlayersForClub(id)).withRel("players"));
+		this.add(linkTo(methodOn(ClubController.class).getHomeMatchesForClub(id)).withRel("home_matches"));
+		this.add(linkTo(methodOn(ClubController.class).getAwayMatchesForClub(id)).withRel("away_matches"));
 	}
 }

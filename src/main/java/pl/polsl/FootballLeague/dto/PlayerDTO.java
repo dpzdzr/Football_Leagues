@@ -25,9 +25,12 @@ public class PlayerDTO extends RepresentationModel<PlayerDTO> {
 		this.lastName = player.getLastName();
 		this.birthDayDate = player.getBirthdayDate();
 		
+		this.add(linkTo(methodOn(PlayerController.class).getPlayer(id)).withSelfRel());
 		this.add(linkTo(methodOn(PlayerController.class).getClubForPlayer(id)).withRel("club"));
 		this.add(linkTo(methodOn(PlayerController.class).getPositionForPlayer(id)).withRel("position"));
 		this.add(linkTo(methodOn(PlayerController.class).getGoalsForPlayer(id)).withRel("goals"));
+		this.add(linkTo(methodOn(PlayerController.class).getAssistsForPlayer(id)).withRel("assists"));
+		
 	}
 
 }

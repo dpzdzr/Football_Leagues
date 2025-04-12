@@ -47,7 +47,7 @@ public class PositionController {
 	}
 
 	@GetMapping("/{id}/players")
-	public CollectionModel<PlayerDTO> getPlayersByPosition(@PathVariable Integer id) {
+	public CollectionModel<PlayerDTO> getPlayersForPosition(@PathVariable Integer id) {
 		List<PlayerDTO> playersDTO = new ArrayList<>();
 		Position position = positionRepo.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));

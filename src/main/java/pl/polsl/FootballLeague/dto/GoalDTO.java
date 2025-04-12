@@ -18,8 +18,10 @@ public class GoalDTO extends RepresentationModel<GoalDTO> {
 		super();
 		this.id = goal.getId();
 		this.minuteScored = goal.getMinuteScored();
-
-		this.add(linkTo(methodOn(GoalController.class).getScorer(id)).withRel("scorer"));
-		this.add(linkTo(methodOn(GoalController.class).getAssistant(id)).withRel("assistant"));
+		
+		this.add(linkTo(methodOn(GoalController.class).getGoal(id)).withSelfRel());
+		this.add(linkTo(methodOn(GoalController.class).getMatchForGoal(id)).withRel("match"));
+		this.add(linkTo(methodOn(GoalController.class).getScorerForGoal(id)).withRel("scorer"));
+		this.add(linkTo(methodOn(GoalController.class).getAssistantForGoal(id)).withRel("assistant"));
 	}
 }
