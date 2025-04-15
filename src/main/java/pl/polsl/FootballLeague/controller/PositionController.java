@@ -1,8 +1,13 @@
 package pl.polsl.FootballLeague.controller;
 
+import static pl.polsl.FootballLeague.DeleteUtil.detach;
+import static pl.polsl.FootballLeague.ExceptionUtil.existsOrThrow;
+import static pl.polsl.FootballLeague.ExceptionUtil.findOrThrow;
+import static pl.polsl.FootballLeague.PatchUtil.copyIfNotNull;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -23,6 +28,7 @@ import pl.polsl.FootballLeague.dto.PlayerDTO;
 import pl.polsl.FootballLeague.dto.PositionDTO;
 import pl.polsl.FootballLeague.model.Player;
 import pl.polsl.FootballLeague.model.Position;
+import pl.polsl.FootballLeague.repository.PlayerRepository;
 import pl.polsl.FootballLeague.repository.PositionRepository;
 
 @RestController
@@ -30,10 +36,13 @@ import pl.polsl.FootballLeague.repository.PositionRepository;
 public class PositionController {
 	@Autowired
 	private PositionRepository positionRepo;
+	@Autowired
+	private PlayerRepository playerRepo;
 
 	@PostMapping
-	public void addPosition(@RequestBody Position position) {
-		positionRepo.save(position);
+	public ResponseEntity<PositionDTO> addPosition(@RequestBody Position position) {
+		PositionDTO positionDTO = new PositionDTO(positionRepo.save(position));
+		return ResponseEntity.created(URI.create("/position/" + positionDTO.getId())).body(positionDTO);
 	}
 
 	@GetMapping
@@ -47,56 +56,39 @@ public class PositionController {
 	@GetMapping("/{id}")
 	public PositionDTO getPosition(@PathVariable Integer id) {
 		return positionRepo.findById(id).map(PositionDTO::new)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position"));
 	}
 
 	@GetMapping("/{id}/players")
 	public CollectionModel<PlayerDTO> getPlayersForPosition(@PathVariable Integer id) {
 		List<PlayerDTO> playersDTO = new ArrayList<>();
-		Position position = positionRepo.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
+		Position position = findOrThrow(positionRepo.findById(id), "Position");
 		for (Player player : position.getPlayers())
 			playersDTO.add(new PlayerDTO(player));
-
 		return CollectionModel.of(playersDTO);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updatePosition(@PathVariable Integer id, @RequestBody Position updatedPosition) {
-//		Position existingPosition = positionRepo.findById(id)
-//		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Position not found"));
-//
-//		existingPosition.setName(updatedPosition.getName());
-//		return new PositionDTO(positionRepo.save(existingPosition));
-
-		if (!positionRepo.existsById(id)) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Position not found");
-		}
-
+	public ResponseEntity<PositionDTO> updatePosition(@PathVariable Integer id, @RequestBody Position updatedPosition) {
+		existsOrThrow(positionRepo.existsById(id), "Position");
 		updatedPosition.setId(id);
 		return ResponseEntity.ok(new PositionDTO(positionRepo.save(updatedPosition)));
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<?> patchPosition(@PathVariable Integer id, @RequestBody Position patchPosition) {
-		Optional<Position> optionalPosition = positionRepo.findById(id);
-		if (optionalPosition.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Position not found");
-		}
-
-		Position existingPosition = optionalPosition.get();
-		if (patchPosition.getName() != null)
-			existingPosition.setName(patchPosition.getName());
+	public ResponseEntity<PositionDTO> patchPosition(@PathVariable Integer id, @RequestBody Position patchPosition) {
+		Position existingPosition = findOrThrow(positionRepo.findById(id), "Position");
+		copyIfNotNull(patchPosition.getName(), existingPosition::setName);
 		return ResponseEntity.ok(new PositionDTO(positionRepo.save(existingPosition)));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deletePositionById(@PathVariable Integer id) {
-		if (!positionRepo.findById(id).isPresent()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Position not found");
-		}
-
-		positionRepo.deleteById(id);
+	public ResponseEntity<Object> deletePositionById(@PathVariable Integer id) {
+		Position existingPosition = findOrThrow(positionRepo.findById(id), "Position");
+		List<Player> modifiedPlayers = detach(existingPosition, Position::getPlayers, (p -> p.setPosition(null)));
+		playerRepo.saveAll(modifiedPlayers);
+		positionRepo.delete(existingPosition);
 		return ResponseEntity.noContent().build();
 	}
+
 }

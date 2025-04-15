@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,13 +26,13 @@ public class Match {
 	private Integer homeScore;
 	private Integer awayScore;
 	
-	@ManyToOne(optional = false)
+	@ManyToOne//(optional = false)
 	private Club homeClub;
 
-	@ManyToOne(optional = false)
+	@ManyToOne//(optional = false)
 	private Club awayClub;
 
-	@OneToMany(mappedBy = "match")
+	@OneToMany(mappedBy = "match", cascade = CascadeType.REMOVE)
 	@JsonIgnore
 	private List<Goal> goals;
 }

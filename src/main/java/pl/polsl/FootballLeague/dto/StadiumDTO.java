@@ -24,6 +24,9 @@ public class StadiumDTO extends RepresentationModel<StadiumDTO> {
 
 		this.add(linkTo(methodOn(StadiumController.class).getStadium(id)).withSelfRel());
 		this.add(linkTo(methodOn(StadiumController.class).getClubForStadium(id)).withRel("club"));
+		this.add(linkTo(methodOn(StadiumController.class).updateStadium(id, null)).withRel("update").withType("PUT"));
+		this.add(linkTo(methodOn(StadiumController.class).patchStadium(id, null)).withRel("patch").withType("PATCH"));
+		this.add(linkTo(methodOn(StadiumController.class).deleteStadium(id)).withRel("delete").withType("DELETE"));
 	}
 
 }

@@ -1,11 +1,13 @@
 package pl.polsl.FootballLeague.controller;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,8 +32,9 @@ public class PlayerController {
 	private PlayerRepository playerRepo;
 
 	@PostMapping
-	public void addPlayer(@RequestBody Player player) {
-		player = playerRepo.save(player);
+	public ResponseEntity<PlayerDTO> addPlayer(@RequestBody Player player) {
+		PlayerDTO playerDTO = new PlayerDTO(playerRepo.save(player));
+		return ResponseEntity.created(URI.create("/player/"+playerDTO.getId())).body(playerDTO);
 	}
 
 	@GetMapping

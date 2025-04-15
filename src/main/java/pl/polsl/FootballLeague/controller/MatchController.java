@@ -67,12 +67,12 @@ public class MatchController {
 
 	@PostMapping
 	public void addMatch(@RequestBody Match match) {
-		Club home = clubRepo.findById(match.getHomeClub().getId())
-				.orElseThrow(() -> new RuntimeException("Home club not found"));
-		Club away = clubRepo.findById(match.getAwayClub().getId())
-				.orElseThrow(() -> new RuntimeException("Away club not found"));
-		match.setHomeClub(home);
-		match.setAwayClub(away);
+//		Club home = clubRepo.findById(match.getHomeClub().getId())
+//				.orElseThrow(() -> new RuntimeException("Home club not found"));
+//		Club away = clubRepo.findById(match.getAwayClub().getId())
+//				.orElseThrow(() -> new RuntimeException("Away club not found"));
+//		match.setHomeClub(home);
+//		match.setAwayClub(away);
 
 		match = matchRepo.save(match);
 
