@@ -1,10 +1,7 @@
 package pl.polsl.FootballLeague.controller;
 
-import static pl.polsl.FootballLeague.DeleteUtil.removeAssociation;
-import static pl.polsl.FootballLeague.ExceptionUtil.existsOrThrow;
-import static pl.polsl.FootballLeague.ExceptionUtil.findOrThrow;
-import static pl.polsl.FootballLeague.PatchUtil.copyIfExists;
-import static pl.polsl.FootballLeague.PatchUtil.copyIfNotNull;
+import static pl.polsl.FootballLeague.util.DeleteUtil.detachSingle;
+import static pl.polsl.FootballLeague.util.RepositoryUtil.findOrThrow;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,12 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import pl.polsl.FootballLeague.dto.GoalCreateDTO;
 import pl.polsl.FootballLeague.dto.GoalDTO;
 import pl.polsl.FootballLeague.dto.MatchDTO;
 import pl.polsl.FootballLeague.dto.PlayerDTO;
+import pl.polsl.FootballLeague.mapper.GoalMapper;
 import pl.polsl.FootballLeague.model.Goal;
-import pl.polsl.FootballLeague.model.Match;
-import pl.polsl.FootballLeague.model.Player;
 import pl.polsl.FootballLeague.repository.GoalRepository;
 import pl.polsl.FootballLeague.repository.MatchRepository;
 import pl.polsl.FootballLeague.repository.PlayerRepository;
@@ -81,26 +78,25 @@ public class GoalController {
 	}
 
 	@PostMapping
-	public ResponseEntity<GoalDTO> addGoal(@RequestBody Goal goal) {
-		GoalDTO goalDTO = new GoalDTO(goalRepo.save(goal));
+	public ResponseEntity<GoalDTO> postGoal(@RequestBody GoalCreateDTO postGoal) {
+		Goal newGoal = new Goal();
+		GoalMapper.toEntity(postGoal, newGoal, matchRepo, playerRepo);
+		GoalDTO goalDTO = new GoalDTO(goalRepo.save(newGoal));
 		return ResponseEntity.created(URI.create("/goal/" + goalDTO.getId())).body(goalDTO);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<GoalDTO> updateGoal(@PathVariable Integer id, @RequestBody Goal updatedGoal) {
-		existsOrThrow(goalRepo.existsById(id), "Goal");
-		updatedGoal.setId(id);
-		GoalDTO goalDTO = new GoalDTO(goalRepo.save(updatedGoal));
+	public ResponseEntity<GoalDTO> putGoal(@PathVariable Integer id, @RequestBody GoalCreateDTO putGoal) {
+		Goal existingGoal = findOrThrow(goalRepo.findById(id), "Goal");
+		GoalMapper.put(putGoal, existingGoal, goalRepo, matchRepo, playerRepo);
+		GoalDTO goalDTO = new GoalDTO(goalRepo.save(existingGoal));
 		return ResponseEntity.created(URI.create("/goal/" + id)).body(goalDTO);
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<GoalDTO> patchGoal(@PathVariable Integer id, @RequestBody Goal updatedGoal) {
+	public ResponseEntity<GoalDTO> patchGoal(@PathVariable Integer id, @RequestBody GoalCreateDTO patchGoal) {
 		Goal existingGoal = findOrThrow(goalRepo.findById(id), "Goal not found");
-		copyIfNotNull(updatedGoal.getMinuteScored(), existingGoal::setMinuteScored);
-		copyIfExists(matchRepo, updatedGoal.getMatch(), Match::getId, existingGoal::setMatch, "Match");
-		copyIfExists(playerRepo, updatedGoal.getScorer(), Player::getId, existingGoal::setScorer, "Scorer");
-		copyIfExists(playerRepo, updatedGoal.getAssistant(), Player::getId, existingGoal::setAssistant, "Assistant");
+		GoalMapper.patch(patchGoal, existingGoal, goalRepo, matchRepo, playerRepo);
 		goalRepo.save(existingGoal);
 		return ResponseEntity.ok(new GoalDTO(existingGoal));
 	}
@@ -108,9 +104,12 @@ public class GoalController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deleteGoal(@PathVariable Integer id) {
 		Goal existingGoal = findOrThrow(goalRepo.findById(id), "Goal");
-		removeAssociation(matchRepo, existingGoal, Goal::getMatch, (match, g) -> match.getGoals().remove(g));
-		removeAssociation(playerRepo, existingGoal, Goal::getScorer, (scorer, g) -> scorer.getGoals().remove(g));
-		removeAssociation(playerRepo, existingGoal, Goal::getAssistant, (assistant, g) -> assistant.getAssists().remove(g));
+		detachSingle(existingGoal, Goal::getMatch, (match, g) -> match.getGoals().remove(g), matchRepo);
+		detachSingle(existingGoal, Goal::getScorer, (scorer, g) -> scorer.getGoals().remove(g), playerRepo);
+		detachSingle(existingGoal, Goal::getAssistant, (assistant, g) -> assistant.getAssists().remove(g), playerRepo);
+		existingGoal.setMatch(null);
+		existingGoal.setScorer(null);
+		existingGoal.setAssistant(null);
 		goalRepo.delete(existingGoal);
 		return ResponseEntity.noContent().build();
 	}

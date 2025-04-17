@@ -1,13 +1,13 @@
-package pl.polsl.FootballLeague;
+package pl.polsl.FootballLeague.util;
 
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class ExceptionUtil {
-	public static <T> T findOrThrow(Optional<T> optional, String what) {
-		return optional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, what + " not found"));
+public class RepositoryUtil {
+	public static <T> T findOrThrow(Optional<T> optional, String entityName) {
+		return optional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, entityName + " not found"));
 	}
 
 	public static void existsOrThrow(boolean exists, String entityName) {

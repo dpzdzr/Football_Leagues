@@ -1,9 +1,9 @@
 package pl.polsl.FootballLeague.controller;
 
-import static pl.polsl.FootballLeague.DeleteUtil.detach;
-import static pl.polsl.FootballLeague.ExceptionUtil.existsOrThrow;
-import static pl.polsl.FootballLeague.ExceptionUtil.findOrThrow;
-import static pl.polsl.FootballLeague.PatchUtil.copyIfNotNull;
+import static pl.polsl.FootballLeague.util.DeleteUtil.detachCollection;
+import static pl.polsl.FootballLeague.util.DtoMappingUtil.copyIfNotNull;
+import static pl.polsl.FootballLeague.util.RepositoryUtil.existsOrThrow;
+import static pl.polsl.FootballLeague.util.RepositoryUtil.findOrThrow;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -85,8 +85,7 @@ public class PositionController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deletePositionById(@PathVariable Integer id) {
 		Position existingPosition = findOrThrow(positionRepo.findById(id), "Position");
-		List<Player> modifiedPlayers = detach(existingPosition, Position::getPlayers, (p -> p.setPosition(null)));
-		playerRepo.saveAll(modifiedPlayers);
+		detachCollection(existingPosition, Position::getPlayers, (p -> p.setPosition(null)), playerRepo);
 		positionRepo.delete(existingPosition);
 		return ResponseEntity.noContent().build();
 	}

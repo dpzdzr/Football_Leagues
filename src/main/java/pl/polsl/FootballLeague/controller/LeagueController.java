@@ -1,8 +1,8 @@
 package pl.polsl.FootballLeague.controller;
 
-import static pl.polsl.FootballLeague.ExceptionUtil.existsOrThrow;
-import static pl.polsl.FootballLeague.ExceptionUtil.findOrThrow;
-import static pl.polsl.FootballLeague.PatchUtil.copyIfNotNull;
+import static pl.polsl.FootballLeague.util.DtoMappingUtil.copyIfNotNull;
+import static pl.polsl.FootballLeague.util.RepositoryUtil.existsOrThrow;
+import static pl.polsl.FootballLeague.util.RepositoryUtil.findOrThrow;
 
 import java.net.URI;
 import java.util.Comparator;
