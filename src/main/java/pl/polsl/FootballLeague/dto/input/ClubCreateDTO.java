@@ -1,13 +1,11 @@
-package pl.polsl.FootballLeague.dto;
-
-import org.springframework.hateoas.RepresentationModel;
+package pl.polsl.FootballLeague.dto.input;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ClubCreateDTO extends RepresentationModel<ClubCreateDTO> {
+public class ClubCreateDTO {
 	private Integer id;
 	private String name;
 	private String city;

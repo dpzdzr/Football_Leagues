@@ -1,4 +1,4 @@
-package pl.polsl.FootballLeague.dto;
+package pl.polsl.FootballLeague.dto.output;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;

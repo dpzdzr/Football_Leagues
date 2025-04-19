@@ -1,6 +1,6 @@
 package pl.polsl.FootballLeague.util;
 
-import static pl.polsl.FootballLeague.util.RepositoryUtil.findOrThrow;
+import static pl.polsl.FootballLeague.util.RepoUtil.findOrThrow;
 
 import java.util.function.Consumer;
 
@@ -14,15 +14,15 @@ public class DtoMappingUtil {
 	}
 
 	public static <T> void assignIfNotNull(CrudRepository<T, Integer> repo, Integer id, Consumer<T> setter,
-			String entityName) {
+			Class<?> clazz) {
 		if (id != null) {
-			T found = findOrThrow(repo.findById(id), entityName);
+			T found = findOrThrow(repo.findById(id), clazz);
 			setter.accept(found);
 		}
 	}
 
 	public static <T> void assignEvenIfNull(CrudRepository<T, Integer> repo, Integer id, Consumer<T> setter,
-			String entityName) {
-		setter.accept(id != null ? findOrThrow(repo.findById(id), entityName) : null);
+			Class<?> clazz) {
+		setter.accept(id != null ? findOrThrow(repo.findById(id), clazz) : null);
 	}
 }

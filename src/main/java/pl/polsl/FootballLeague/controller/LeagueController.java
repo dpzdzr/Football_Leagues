@@ -1,16 +1,7 @@
 package pl.polsl.FootballLeague.controller;
 
-import static pl.polsl.FootballLeague.util.DtoMappingUtil.copyIfNotNull;
-import static pl.polsl.FootballLeague.util.RepositoryUtil.existsOrThrow;
-import static pl.polsl.FootballLeague.util.RepositoryUtil.findOrThrow;
-
 import java.net.URI;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,80 +14,57 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pl.polsl.FootballLeague.dto.ClubDTO;
-import pl.polsl.FootballLeague.dto.LeagueDTO;
-import pl.polsl.FootballLeague.model.Club;
-import pl.polsl.FootballLeague.model.League;
-import pl.polsl.FootballLeague.repository.ClubRepository;
-import pl.polsl.FootballLeague.repository.LeagueRepository;
+import lombok.RequiredArgsConstructor;
+import pl.polsl.FootballLeague.dto.input.LeagueCreateDTO;
+import pl.polsl.FootballLeague.dto.output.ClubDTO;
+import pl.polsl.FootballLeague.dto.output.LeagueDTO;
+import pl.polsl.FootballLeague.service.LeagueService;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/league")
 public class LeagueController {
-	@Autowired
-	LeagueRepository leagueRepo;
-	@Autowired
-	ClubRepository clubRepo;
-
+	private final LeagueService leagueService;
+	
 	@GetMapping
 	public CollectionModel<LeagueDTO> getLeagues() {
-		List<LeagueDTO> leaguesDTO = StreamSupport.stream(leagueRepo.findAll().spliterator(), false).map(LeagueDTO::new)
-				.toList();
-		return CollectionModel.of(leaguesDTO);
+		return CollectionModel.of(leagueService.getAll());
 	}
 
 	@GetMapping("/{id}")
 	public LeagueDTO getLeague(@PathVariable Integer id) {
-		return new LeagueDTO(findOrThrow(leagueRepo.findById(id), "League"));
+		return leagueService.getById(id);
 	}
 
 	@GetMapping("/{id}/table")
 	public CollectionModel<ClubDTO> getLeagueTable(@PathVariable Integer id) {
-		League league = findOrThrow(leagueRepo.findById(id), "League");
-		List<ClubDTO> clubsDTO = league.getClubs().stream()
-				.sorted(Comparator.comparingInt(c -> -Optional.ofNullable(c.getPoints()).orElse(0))).map(ClubDTO::new)
-				.toList();
-
-		return CollectionModel.of(clubsDTO);
+		return CollectionModel.of(leagueService.getTable(id));
 	}
 
 	@GetMapping("/{id}/clubs")
 	public CollectionModel<ClubDTO> getClubsForLeague(@PathVariable Integer id) {
-		League league = findOrThrow(leagueRepo.findById(id), "League");
-		List<ClubDTO> clubsDTO = league.getClubs().stream().map(ClubDTO::new).toList();
-		return CollectionModel.of(clubsDTO);
+		return CollectionModel.of(leagueService.getClubs(id));
 	}
 
 	@PostMapping
-	public ResponseEntity<LeagueDTO> addLeague(@RequestBody League league) {
-		LeagueDTO leagueDTO = new LeagueDTO(leagueRepo.save(league));
-		return ResponseEntity.created(URI.create("/league" + leagueDTO.getId())).body(leagueDTO);
+	public ResponseEntity<LeagueDTO> addLeague(@RequestBody LeagueCreateDTO dto) {
+		LeagueDTO created = leagueService.create(dto);
+		return ResponseEntity.created(URI.create("/league/" + created.getId())).body(created);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<LeagueDTO> putLeague(@PathVariable Integer id, @RequestBody League putLeague) {
-		existsOrThrow(leagueRepo.existsById(id), "League");
-		putLeague.setId(id);
-		return ResponseEntity.ok(new LeagueDTO(leagueRepo.save(putLeague)));
+	public ResponseEntity<LeagueDTO> putLeague(@PathVariable Integer id, @RequestBody LeagueCreateDTO dto) {
+		return ResponseEntity.ok(leagueService.update(id, dto));
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<LeagueDTO> patchLeague(@PathVariable Integer id, @RequestBody League patchLeague) {
-		League existingLeague = findOrThrow(leagueRepo.findById(id), "League");
-		copyIfNotNull(patchLeague.getName(), existingLeague::setName);
-		copyIfNotNull(patchLeague.getCountry(), existingLeague::setCountry);
-		return ResponseEntity.ok(new LeagueDTO(leagueRepo.save(existingLeague)));
+	public ResponseEntity<LeagueDTO> patchLeague(@PathVariable Integer id, @RequestBody LeagueCreateDTO dto) {
+		return ResponseEntity.ok(leagueService.patch(id, dto));
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deleteLeagueById(@PathVariable Integer id) {
-		League league = findOrThrow(leagueRepo.findById(id), "League");
-		clubRepo.saveAll(detachClubs(league));
-		leagueRepo.delete(league);
+		leagueService.delete(id);
 		return ResponseEntity.noContent().build();
-	}
-
-	private List<Club> detachClubs(League league) {
-		return league.getClubs().stream().peek(c -> c.setLeague(null)).toList();
 	}
 }

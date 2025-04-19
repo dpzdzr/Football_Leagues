@@ -32,7 +32,7 @@ public class Match {
 	@ManyToOne//(optional = false)
 	private Club awayClub;
 
-	@OneToMany(mappedBy = "match", cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "match", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@JsonIgnore
 	private List<Goal> goals;
 }
