@@ -51,4 +51,12 @@ public class Club {
 	public void addDraw() {
 		points += 1;
 	}
+	
+	public void substractWin() {
+		points -= 3;
+	}
+	
+	public void substractDraw() {
+		points -= 1;
+	}
 }

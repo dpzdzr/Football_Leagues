@@ -55,7 +55,7 @@ public class MatchService {
 		Match match = new Match();
 		MatchMapper.updateFromDTO(dto, match);
 		assignRelations(dto, match, true);
-		addPointsByResult(match);
+		adjustPointsByResult(match, true);
 		return new MatchDTO(matchRepo.save(match));
 	}
 
@@ -94,17 +94,28 @@ public class MatchService {
 		}
 	}
 
-	private void addPointsByResult(Match match) {
+	private void adjustPointsByResult(Match match, boolean add) {		
 		if (match.getHomeScore() == null || match.getAwayScore() == null)
 			return;
 
 		if (match.getHomeScore() > match.getAwayScore()) {
-			match.getHomeClub().addWin();
+			if(add)
+				match.getHomeClub().addWin();
+			else 
+				match.getHomeClub().substractWin();
 		} else if (match.getHomeScore() < match.getAwayScore()) {
-			match.getAwayClub().addWin();
+			if(add)
+				match.getAwayClub().addWin();
+			else 
+				match.getAwayClub().substractWin();
 		} else {
-			match.getHomeClub().addDraw();
-			match.getAwayClub().addDraw();
+	        if (add) {
+	            match.getHomeClub().addDraw();
+	            match.getAwayClub().addDraw();
+	        } else {
+	            match.getHomeClub().substractDraw();
+	            match.getAwayClub().substractDraw();
+	        }
 		}
 		clubRepo.save(match.getHomeClub());
 		clubRepo.save(match.getAwayClub());

@@ -14,5 +14,6 @@ public class MatchMapper {
 	public static void patchFromDTO(MatchCreateDTO dto, Match match) {
 		DtoMappingUtil.copyIfNotNull(dto.getDateTime(), match::setDateTime);
 		DtoMappingUtil.copyIfNotNull(dto.getHomeScore(), match::setHomeScore);
+		DtoMappingUtil.copyIfNotNull(dto.getAwayScore(), match::setAwayScore);
 	}
 }
