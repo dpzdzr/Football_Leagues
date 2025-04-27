@@ -1,12 +1,14 @@
 package pl.polsl.FootballLeague.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +23,7 @@ public class Stadium {
 	private Integer capacity;
 	private String address;
 
-	@OneToOne(mappedBy = "stadium")
+	@OneToMany(mappedBy = "stadium")
 	@JsonIgnore
-	private Club club;
+	private List<Club> clubs;
 }

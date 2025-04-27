@@ -36,9 +36,9 @@ public class StadiumController {
 		return stadiumService.getById(id);
 	}
 
-	@GetMapping("/{id}/club")
-	public ClubDTO getClubForStadium(@PathVariable Integer id) {
-		return stadiumService.getClub(id);
+	@GetMapping("/{id}/clubs")
+	public CollectionModel<ClubDTO> getClubsForStadium(@PathVariable Integer id) {
+		return CollectionModel.of(stadiumService.getClubs(id));
 	}
 
 	@PostMapping

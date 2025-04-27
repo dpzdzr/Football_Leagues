@@ -116,7 +116,7 @@ public class ClubService {
 		DeleteUtil.detachCollection(club, Club::getPlayers, (p -> p.setClub(null)), playerRepo);
 		DeleteUtil.detachCollection(club, Club::getHomeMatches, (m -> m.setHomeClub(null)), matchRepo);
 		DeleteUtil.detachCollection(club, Club::getAwayMatches, (m -> m.setAwayClub(null)), matchRepo);
-		DeleteUtil.detachSingle(club, Club::getStadium, stadium -> stadium.setClub(null), stadiumRepo);
+		DeleteUtil.detachSingle(club, Club::getStadium, (stadium, c) -> stadium.getClubs().remove(c), stadiumRepo);
 		DeleteUtil.detachSingle(club, Club::getLeague, (league, c) -> league.getClubs().remove(c), leagueRepo);
 		club.setLeague(null);
 		club.setStadium(null);

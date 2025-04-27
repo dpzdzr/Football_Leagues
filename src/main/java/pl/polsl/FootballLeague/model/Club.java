@@ -29,7 +29,7 @@ public class Club {
 	@ManyToOne
 	private League league;
 
-	@OneToOne
+	@ManyToOne
 	private Stadium stadium;
 
 	@OneToMany(mappedBy = "club")

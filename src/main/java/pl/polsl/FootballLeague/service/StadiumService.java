@@ -12,8 +12,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import pl.polsl.FootballLeague.dto.input.StadiumCreateDTO;
 import pl.polsl.FootballLeague.dto.output.ClubDTO;
+import pl.polsl.FootballLeague.dto.output.MatchDTO;
 import pl.polsl.FootballLeague.dto.output.StadiumDTO;
 import pl.polsl.FootballLeague.mapper.StadiumMapper;
+import pl.polsl.FootballLeague.model.Club;
 import pl.polsl.FootballLeague.model.Stadium;
 import pl.polsl.FootballLeague.repository.ClubRepository;
 import pl.polsl.FootballLeague.repository.StadiumRepository;
@@ -34,10 +36,11 @@ public class StadiumService {
 		return new StadiumDTO(findStadium(id));
 	}
 
-	public ClubDTO getClub(Integer id) {
+	public List<ClubDTO> getClubs(Integer id) {
 		Stadium stadium = findStadium(id);
-		return Optional.ofNullable(stadium.getClub()).map(ClubDTO::new)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Club not assigned"));
+		List<ClubDTO> clubDTOs = StreamSupport.stream(stadium.getClubs().spliterator(), false).map(ClubDTO::new)
+				.toList();
+		return clubDTOs;
 	}
 
 	@Transactional
@@ -64,7 +67,7 @@ public class StadiumService {
 	@Transactional
 	public void delete(Integer id) {
 		Stadium stadium = findStadium(id);
-		DeleteUtil.detachSingle(stadium, Stadium::getClub, c -> c.setStadium(null), clubRepo);
+		DeleteUtil.detachCollection(stadium, Stadium::getClubs, c -> c.setStadium(null), clubRepo);
 		stadiumRepo.delete(stadium);
 	}
 
