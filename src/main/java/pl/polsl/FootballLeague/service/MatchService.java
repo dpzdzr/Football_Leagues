@@ -62,21 +62,26 @@ public class MatchService {
 	@Transactional
 	public MatchDTO update(Integer id, MatchCreateDTO dto) {
 		Match match = findMatch(id);
+		adjustPointsByResult(match, false);
 		MatchMapper.updateFromDTO(dto, match);
 		assignRelations(dto, match, true);
+		adjustPointsByResult(match, true);
 		return new MatchDTO(matchRepo.save(match));
 	}
 
 	@Transactional
 	public MatchDTO patch(Integer id, MatchCreateDTO dto) {
 		Match match = findMatch(id);
+		adjustPointsByResult(match, false);
 		MatchMapper.patchFromDTO(dto, match);
 		assignRelations(dto, match, false);
+		adjustPointsByResult(match, true);
 		return new MatchDTO(matchRepo.save(match));
 	}
 
 	@Transactional
 	public void delete(Integer id) {
+		adjustPointsByResult(findMatch(id), false);
 		matchRepo.delete(findMatch(id));
 	}
 
