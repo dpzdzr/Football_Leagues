@@ -48,22 +48,22 @@ public class TestDataInitializer implements CommandLineRunner {
 	
 	private void initializeStadiums() {
 		if(stadiumService.getAll().isEmpty()) {
-			StadiumCreateDTO wembly = new StadiumCreateDTO();
-			wembly.setName("Wembly Stadium");
-			wembly.setCapacity(90000);
-			wembly.setAddress("London, England");
+			StadiumCreateDTO wembley = new StadiumCreateDTO();
+			wembley.setName("Wembley Stadium");
+			wembley.setCapacity(90000);
+			wembley.setAddress("London, England");
 			
 			StadiumCreateDTO trafford = new StadiumCreateDTO();
-			wembly.setName("Old Trafford");
-			wembly.setCapacity(75000);
-			wembly.setAddress("Manchester, England");
+			trafford.setName("Old Trafford");
+			trafford.setCapacity(75000);
+			trafford.setAddress("Manchester, England");
 			
 			StadiumCreateDTO anfield = new StadiumCreateDTO();
-			wembly.setName("Anfield");
-			wembly.setCapacity(61000);
-			wembly.setAddress("Liverpool, England");
+			anfield.setName("Anfield");
+			anfield.setCapacity(61000);
+			anfield.setAddress("Liverpool, England");
 			
-			stadiumService.create(wembly);
+			stadiumService.create(wembley);
 			stadiumService.create(trafford);
 			stadiumService.create(anfield);
 		}
